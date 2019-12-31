@@ -1,7 +1,5 @@
-## Poll Bot
-This bot uses Symphony Elements to facilitate the creation of polls, firing of poll messages, ending polls and collation of results. 
-
-![](poll-bot.gif)
+## Quiz Bot
+This bot uses Symphony Elements to facilitate the creation of quizzes, firing of quiz messages, ending quizzes and collation of results. 
 
 ## Requirements
 * JDK 8+
@@ -23,10 +21,10 @@ and service account details
     "podPort": 443,
     "agentHost": "[pod].symphony.com",
     "agentPort": 443,
-    "botUsername": "poll-bot",
-    "botEmailAddress": "poll-bot@bots.symphony.com",
+    "botUsername": "quiz-bot",
+    "botEmailAddress": "quiz-bot@bots.symphony.com",
     "botPrivateKeyPath": "rsa/",
-    "botPrivateKeyName": "rsa-private-poll-bot.pem"
+    "botPrivateKeyName": "rsa-private-quiz-bot.pem"
 }
 ```
 

@@ -1,4 +1,4 @@
-package com.symphony.ps.pollbot.model;
+package com.symphony.ps.quizbot.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PollVote {
+public class QuizAnswer {
     private String id;
-    private String pollId;
+    private String quizId;
     private String answer;
     private long userId;
 }

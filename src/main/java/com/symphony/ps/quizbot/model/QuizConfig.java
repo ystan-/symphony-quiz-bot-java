@@ -1,4 +1,4 @@
-package com.symphony.ps.pollbot.model;
+package com.symphony.ps.quizbot.model;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,13 +7,13 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PollConfig {
+public class QuizConfig {
     private int options;
     private List<Integer> timeLimits;
     private boolean targetStream;
 
-    public PollConfig() {
-        options = 6;
+    public QuizConfig() {
+        options = 4;
         timeLimits = Arrays.asList(0, 2, 5);
     }
 }

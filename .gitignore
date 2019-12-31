@@ -4,3 +4,4 @@ rsa/
 target/
 deploy/
 datafeed.id
+application.properties

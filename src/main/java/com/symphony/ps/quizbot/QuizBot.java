@@ -1,10 +1,10 @@
-package com.symphony.ps.pollbot;
+package com.symphony.ps.quizbot;
 
 import clients.SymBotClient;
 import com.sun.net.httpserver.HttpServer;
-import com.symphony.ps.pollbot.listeners.ElementsListenerImpl;
-import com.symphony.ps.pollbot.listeners.IMListenerImpl;
-import com.symphony.ps.pollbot.listeners.RoomListenerImpl;
+import com.symphony.ps.quizbot.listeners.ElementsListenerImpl;
+import com.symphony.ps.quizbot.listeners.IMListenerImpl;
+import com.symphony.ps.quizbot.listeners.RoomListenerImpl;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -17,12 +17,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @Slf4j
 @SpringBootApplication
-public class PollBot {
+public class QuizBot {
     @Getter
     private static SymBotClient botClient;
     private static Map<Long, String> userImMap = new HashMap<>();
 
-    public PollBot(IMListenerImpl imListener, RoomListenerImpl roomListener, ElementsListenerImpl elementsListener) {
+    public QuizBot(IMListenerImpl imListener, RoomListenerImpl roomListener, ElementsListenerImpl elementsListener) {
         try {
             // Bot init
             botClient = SymBotClient.initBotRsa("config.json");
@@ -40,10 +40,13 @@ public class PollBot {
     }
 
     public static void sendMessage(String streamId, String message) {
+        log.debug("Sending message to {}\n{}", streamId, message);
         botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(message));
     }
 
     public static void sendMessage(String streamId, String message, String data) {
+        log.debug("Sending message with data to {}\n{}", streamId, message);
+        log.debug(data);
         botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(message, data));
     }
 
@@ -74,6 +77,6 @@ public class PollBot {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(PollBot.class, args);
+        SpringApplication.run(QuizBot.class, args);
     }
 }

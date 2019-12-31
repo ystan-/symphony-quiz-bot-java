@@ -1,6 +1,6 @@
-package com.symphony.ps.pollbot.listeners;
+package com.symphony.ps.quizbot.listeners;
 
-import com.symphony.ps.pollbot.services.PollService;
+import com.symphony.ps.quizbot.services.QuizService;
 import listeners.IMListener;
 import lombok.extern.slf4j.Slf4j;
 import model.InboundMessage;
@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class IMListenerImpl implements IMListener {
-    private final PollService pollService;
+    private final QuizService quizService;
 
-    public IMListenerImpl(PollService pollService) {
-        this.pollService = pollService;
+    public IMListenerImpl(QuizService quizService) {
+        this.quizService = quizService;
     }
 
     public void onIMMessage(InboundMessage msg) {
-        pollService.handleIncomingMessage(msg, StreamTypes.IM);
+        quizService.handleIncomingMessage(msg, StreamTypes.IM);
     }
 
     public void onIMCreated(Stream stream) {}

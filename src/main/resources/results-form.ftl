@@ -1,8 +1,8 @@
-<div class='entity' data-entity-id='poll'>
+<div class='entity' data-entity-id='quiz'>
     <div style='display:flex;padding-top:8px'>
         <div><img src="https://symphony.com/wp-content/uploads/2019/08/favicon.png" style='height:20px' /></div>
         <div style='padding-top:1px;padding-left:5px;'>
-            <b>Poll Results: ${entity["poll"].question}</b> by <mention uid="${entity["poll"].creatorId}" />
+            <b>Quiz Results: ${entity["quiz"].question}</b> by <mention uid="${entity["quiz"].creatorId}" />
         </div>
     </div>
 
@@ -14,7 +14,7 @@
             <th style="text-align:right">Votes</th>
             <th></th>
         </tr>
-        <#list entity["poll"].results as result>
+        <#list entity["quiz"].results as result>
             <tr>
                 <td>${result.answer}</td>
                 <td style="text-align:right">${result.count}</td>

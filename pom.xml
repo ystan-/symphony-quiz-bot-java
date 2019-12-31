@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.symphony.ps.pollbot</groupId>
-    <artifactId>symphony-poll-bot-java</artifactId>
+    <groupId>com.symphony.ps.quizbot</groupId>
+    <artifactId>symphony-quiz-bot-java</artifactId>
     <version>1.1</version>
-    <name>Symphony Poll Bot</name>
-    <url>https://github.com/SymphonyPlatformSolutions/symphony-poll-bot-java</url>
-    <description>Example bot for simple polling</description>
+    <name>Symphony Quiz Bot</name>
+    <url>https://github.com/SymphonyPlatformSolutions/symphony-quiz-bot-java</url>
+    <description>Example bot for simple quizzing</description>
 
     <licenses>
         <license>

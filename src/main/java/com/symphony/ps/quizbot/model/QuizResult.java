@@ -1,4 +1,4 @@
-package com.symphony.ps.pollbot.model;
+package com.symphony.ps.quizbot.model;
 
 import java.util.Objects;
 import lombok.*;
@@ -8,13 +8,13 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PollResult extends PollData {
-    private String pollId;
+public class QuizResult extends QuizData {
+    private String quizId;
     private String answer;
     private long count;
     private int width;
 
-    public PollResult(String answer) {
+    public QuizResult(String answer) {
         this.answer = answer;
     }
 
@@ -26,8 +26,8 @@ public class PollResult extends PollData {
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof PollResult)) { return false; }
-        PollResult that = (PollResult) o;
+        if (!(o instanceof QuizResult)) { return false; }
+        QuizResult that = (QuizResult) o;
         return answer.equals(that.answer);
     }
 

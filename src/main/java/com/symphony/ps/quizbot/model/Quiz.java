@@ -1,4 +1,4 @@
-package com.symphony.ps.pollbot.model;
+package com.symphony.ps.quizbot.model;
 
 import java.time.Instant;
 import java.util.List;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Poll {
+public class Quiz {
     private String id;
     private Instant created;
     private Instant ended;
@@ -19,6 +19,6 @@ public class Poll {
     private long creator;
     private String streamId;
     private String questionText;
-    private List<PollParticipant> participants;
     private List<String> answers;
+    private String correctAnswer;
 }

@@ -1,4 +1,4 @@
-package com.symphony.ps.pollbot.model;
+package com.symphony.ps.quizbot.model;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-public class PollCreateData extends PollData {
+public class QuizCreateData extends QuizData {
     private boolean showPersonSelector;
     private String targetStreamId;
     private int count;

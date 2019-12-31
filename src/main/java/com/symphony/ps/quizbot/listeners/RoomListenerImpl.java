@@ -1,6 +1,6 @@
-package com.symphony.ps.pollbot.listeners;
+package com.symphony.ps.quizbot.listeners;
 
-import com.symphony.ps.pollbot.services.PollService;
+import com.symphony.ps.quizbot.services.QuizService;
 import listeners.RoomListener;
 import model.InboundMessage;
 import model.Stream;
@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RoomListenerImpl implements RoomListener {
-    private final PollService pollService;
+    private final QuizService quizService;
 
-    public RoomListenerImpl(PollService pollService) {
-        this.pollService = pollService;
+    public RoomListenerImpl(QuizService quizService) {
+        this.quizService = quizService;
     }
 
     public void onRoomMessage(InboundMessage message) {
-        pollService.handleIncomingMessage(message, StreamTypes.ROOM);
+        quizService.handleIncomingMessage(message, StreamTypes.ROOM);
     }
 
     public void onRoomCreated(RoomCreated roomCreated) {}
