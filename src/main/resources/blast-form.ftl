@@ -1,5 +1,5 @@
 <div class='entity' data-entity-id='quiz'>
-    <form id="quiz-blast-form-${entity["quiz"].quizId}">
+    <form id="quiz-blast-form-${entity["quiz"].quizId},${entity["quiz"].questionIndex}">
         <div style='display:flex;padding-top:8px'>
             <div><img src="https://symphony.com/wp-content/uploads/2019/08/favicon.png" style='height:20px' /></div>
             <div style='padding-top:1px;padding-left:5px;'>

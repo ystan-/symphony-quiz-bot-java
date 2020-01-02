@@ -33,10 +33,14 @@ public class DataService {
         return quiz;
     }
 
-    void nextQuestion(long userId) {
+    Quiz nextQuestion(long userId) {
         Quiz quiz = getActiveQuiz(userId);
-        quiz.setEnded(Instant.now());
-        quizRepository.save(quiz);
+        if (quiz.getCurrentQuestionIndex() + 1 == quiz.getQuestions().size()) {
+            quiz.setEnded(Instant.now());
+        } else {
+            quiz.nextQuestion();
+        }
+        return quizRepository.save(quiz);
     }
 
     Quiz getQuiz(String id) {
@@ -61,18 +65,18 @@ public class DataService {
         return quizzes;
     }
 
-    List<QuizAnswer> getVotes(String quizId) {
-        return quizAnswerRepository.findAllByQuizId(quizId);
+    List<QuizAnswer> getAnswers(String quizId, int questionIndex) {
+        return quizAnswerRepository.findAllByQuizIdAndQuestionIndex(quizId, questionIndex);
     }
 
-    List<QuizResult> getQuizResults(String quizId) {
+    List<QuizResult> getQuizResults(String quizId, int questionIndex) {
         return mongoTemplate
             .aggregate(newAggregation(
-                match(new Criteria("quizId").is(quizId)),
+                match(Criteria.where("quizId").is(quizId).and("questionIndex").is(questionIndex)),
                 group("answer").count().as("count"),
                 project("count").and("answer").previousOperation(),
                 sort(new Sort(Sort.Direction.DESC, "count"))
-            ), "QuizAnswer", QuizResult.class)
+            ), "quizAnswer", QuizResult.class)
             .getMappedResults();
     }
 
@@ -86,12 +90,12 @@ public class DataService {
         log.info("Rigged votes added to database");
     }
 
-    boolean hasVoted(long userId, String quizId) {
-        return quizAnswerRepository.findTopByQuizIdAndUserId(quizId, userId) != null;
+    boolean hasVoted(long userId, String quizId, int questionIndex) {
+        return quizAnswerRepository.findTopByQuizIdAndUserIdAndQuestionIndex(quizId, userId, questionIndex) != null;
     }
 
-    void changeVote(long userId, String quizId, String answer) {
-        QuizAnswer vote = quizAnswerRepository.findTopByQuizIdAndUserId(quizId, userId);
+    void changeVote(long userId, String quizId, int questionIndex, String answer) {
+        QuizAnswer vote = quizAnswerRepository.findTopByQuizIdAndUserIdAndQuestionIndex(quizId, userId, questionIndex);
         vote.setAnswer(answer);
         quizAnswerRepository.save(vote);
     }

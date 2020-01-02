@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class QuizAnswer {
     private String id;
     private String quizId;
+    private int questionIndex;
     private String answer;
+    private boolean correct;
     private long userId;
 }

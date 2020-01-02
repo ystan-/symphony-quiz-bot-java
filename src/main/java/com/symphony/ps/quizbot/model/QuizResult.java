@@ -13,6 +13,7 @@ public class QuizResult extends QuizData {
     private String answer;
     private long count;
     private int width;
+    private boolean correct;
 
     public QuizResult(String answer) {
         this.answer = answer;

@@ -9,6 +9,7 @@ import lombok.Data;
 public class QuizResultsData extends QuizData {
     private String question;
     private long creatorId;
+    private String label;
     private List<QuizResult> results;
 
     public String getCreatorId() {

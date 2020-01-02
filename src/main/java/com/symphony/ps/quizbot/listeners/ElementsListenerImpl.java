@@ -22,8 +22,9 @@ public class ElementsListenerImpl implements ElementsListener {
         if (formId.startsWith("quiz-create-form")) {
             quizService.handleCreateQuiz(initiator, action);
         } else if (formId.startsWith("quiz-launch-form")) {
-            quizService.handleLaunchQuiz(initiator, action);
-        } else if (formId.matches("quiz\\-blast\\-form\\-[\\w\\d]+")) {
+            String quizId = action.getFormId().substring(17);
+            quizService.handleLaunchQuiz(initiator.getUserId(), initiator.getDisplayName(), quizId);
+        } else if (formId.startsWith("quiz-blast-form")) {
             quizService.handleSubmitVote(initiator, action);
         } else {
             QuizBot.sendMessage(action.getStreamId(), "Sorry, I do not understand this form submission");

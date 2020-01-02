@@ -2,10 +2,7 @@ package com.symphony.ps.quizbot.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.symphony.ps.quizbot.model.QuizQuestion;
-import com.symphony.ps.quizbot.model.QuizBlastData;
-import com.symphony.ps.quizbot.model.QuizCreateData;
-import com.symphony.ps.quizbot.model.QuizData;
+import com.symphony.ps.quizbot.model.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,9 +36,11 @@ class MarkupService {
         return wrapData(new QuizCreateData(quizId, targetStreamId, count, timeLimits));
     }
 
-    static String getBlastData(String quizId, QuizQuestion quizQuestion, String label) {
+    static String getBlastData(Quiz quiz, int questionIndex, String label) {
+        QuizQuestion quizQuestion = quiz.getQuestions().get(questionIndex);
         return wrapData(new QuizBlastData(
-            quizId,
+            quiz.getId(),
+            questionIndex,
             quizQuestion.getTimeLimit(),
             quizQuestion.getQuestionText(),
             quizQuestion.getAnswers(),

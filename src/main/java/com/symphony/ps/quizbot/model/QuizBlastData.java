@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 @AllArgsConstructor
 public class QuizBlastData extends QuizData {
     private String quizId;
+    private int questionIndex;
     private int timeLimit;
     private String question;
     private List<String> answers;
