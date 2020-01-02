@@ -17,7 +17,7 @@ public class RoomListenerImpl implements RoomListener {
     }
 
     public void onRoomMessage(InboundMessage message) {
-        quizService.handleIncomingMessage(message, StreamTypes.ROOM);
+        quizService.handleIncomingMessage(message);
     }
 
     public void onRoomCreated(RoomCreated roomCreated) {}

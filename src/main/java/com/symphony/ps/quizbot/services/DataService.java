@@ -27,13 +27,10 @@ public class DataService {
         this.quizAnswerRepository = quizAnswerRepository;
     }
 
-    boolean hasActiveQuiz(long userId) {
-        return 1L == quizRepository.countByCreatorAndEnded(userId, null);
-    }
-
-    void createQuiz(Quiz quiz) {
-        quizRepository.save(quiz);
+    Quiz saveQuiz(Quiz quiz) {
+        quiz = quizRepository.save(quiz);
         log.info("Quiz added to database: {}", quiz.toString());
+        return quiz;
     }
 
     void nextQuestion(long userId) {
@@ -51,10 +48,10 @@ public class DataService {
     }
 
     private List<Quiz> getLastTenQuizzes(long userId) {
-        List<Quiz> quizzes = quizRepository
+        List<Quiz> quizQuestions = quizRepository
             .findAllByCreatorOrderByCreatedDesc(userId, PageRequest.of(0, 10));
-        quizzes.sort(Comparator.comparing(Quiz::getCreated));
-        return quizzes;
+        quizQuestions.sort(Comparator.comparing(Quiz::getCreated));
+        return quizQuestions;
     }
 
     private List<Quiz> getLastTenQuizzes(long userId, String streamId) {

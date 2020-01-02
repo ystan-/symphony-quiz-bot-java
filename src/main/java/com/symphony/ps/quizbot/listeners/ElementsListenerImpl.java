@@ -19,8 +19,10 @@ public class ElementsListenerImpl implements ElementsListener {
 
     public void onElementsAction(User initiator, SymphonyElementsAction action) {
         String formId = action.getFormId();
-        if (formId.equals("quiz-create-form")) {
+        if (formId.startsWith("quiz-create-form")) {
             quizService.handleCreateQuiz(initiator, action);
+        } else if (formId.startsWith("quiz-launch-form")) {
+            quizService.handleLaunchQuiz(initiator, action);
         } else if (formId.matches("quiz\\-blast\\-form\\-[\\w\\d]+")) {
             quizService.handleSubmitVote(initiator, action);
         } else {

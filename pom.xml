@@ -5,10 +5,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.symphony.ps.quizbot</groupId>
-    <artifactId>symphony-quiz-bot-java</artifactId>
+    <artifactId>symphony-quizQuestion-bot-java</artifactId>
     <version>1.1</version>
     <name>Symphony Quiz Bot</name>
-    <url>https://github.com/SymphonyPlatformSolutions/symphony-quiz-bot-java</url>
+    <url>https://github.com/SymphonyPlatformSolutions/symphony-quizQuestion-bot-java</url>
     <description>Example bot for simple quizzing</description>
 
     <licenses>

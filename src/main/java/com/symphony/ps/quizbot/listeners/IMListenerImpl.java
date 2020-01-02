@@ -18,7 +18,7 @@ public class IMListenerImpl implements IMListener {
     }
 
     public void onIMMessage(InboundMessage msg) {
-        quizService.handleIncomingMessage(msg, StreamTypes.IM);
+        quizService.handleIncomingMessage(msg);
     }
 
     public void onIMCreated(Stream stream) {}

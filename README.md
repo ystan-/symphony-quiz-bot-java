@@ -1,5 +1,5 @@
 ## Quiz Bot
-This bot uses Symphony Elements to facilitate the creation of quizzes, firing of quiz messages, ending quizzes and collation of results. 
+This bot uses Symphony Elements to facilitate the creation of quizQuestions, firing of quizQuestion messages, ending quizQuestions and collation of results. 
 
 ## Requirements
 * JDK 8+
@@ -21,10 +21,10 @@ and service account details
     "podPort": 443,
     "agentHost": "[pod].symphony.com",
     "agentPort": 443,
-    "botUsername": "quiz-bot",
-    "botEmailAddress": "quiz-bot@bots.symphony.com",
+    "botUsername": "quizQuestion-bot",
+    "botEmailAddress": "quizQuestion-bot@bots.symphony.com",
     "botPrivateKeyPath": "rsa/",
-    "botPrivateKeyName": "rsa-private-quiz-bot.pem"
+    "botPrivateKeyName": "rsa-private-quizQuestion-bot.pem"
 }
 ```
 

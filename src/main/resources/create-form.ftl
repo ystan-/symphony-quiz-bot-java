@@ -1,5 +1,5 @@
-<form id="quiz-create-form">
-    <div class='entity' data-entity-id='quiz'>
+<div class='entity' data-entity-id='quiz'>
+    <form id="quiz-create-form|${entity['quiz'].quizId}">
         <div style='display:flex;padding-top:8px'>
             <div><img src="https://symphony.com/wp-content/uploads/2019/08/favicon.png" style='height:20px' /></div>
             <div style='padding-top:1px;padding-left:5px;'><b>Create New Quiz</b></div>
@@ -33,15 +33,12 @@
         </#list>
         <br />
 
-        <#if entity["quiz"].showPersonSelector>
-            <h6>Audience</h6>
-            <person-selector name="audience" placeholder="Select audience.." required="true" />
-        </#if>
-
-        <#if entity["quiz"].targetStreamId??>
-            <h6>Room Stream ID</h6>
-            <text-field name="targetStreamId" placeholder="Enter room stream id.."
-                required="true">${entity['quiz'].targetStreamId}</text-field>
+        <h6>Room Stream ID</h6>
+        <#if entity['quiz'].quizId?has_content>
+            <i>${entity['quiz'].targetStreamId}</i><br />
+        <#else>
+            <text-field name="targetStreamId" placeholder="Enter room stream id.." required="true"
+                >${entity['quiz'].targetStreamId}</text-field>
         </#if>
 
         <h6>Time Limit</h6>
@@ -64,6 +61,9 @@
         </div>
 
         <div style='height:1px;background:#0098ff;margin-top:10px;margin-bottom:10px'> </div>
-        <button name="createQuiz" type="action">Create Quiz</button>
-    </div>
-</form>
+        <button name="nextQuestion" type="action">Next Question</button>
+    </form>
+    <form id="quiz-launch-form|${entity['quiz'].quizId}">
+        <button name="launchQuiz" type="action">Launch Quiz</button>
+    </form>
+</div>

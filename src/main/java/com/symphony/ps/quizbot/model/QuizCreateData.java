@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 public class QuizCreateData extends QuizData {
-    private boolean showPersonSelector;
+    private String quizId;
     private String targetStreamId;
     private int count;
     private List<Integer> timeLimits;

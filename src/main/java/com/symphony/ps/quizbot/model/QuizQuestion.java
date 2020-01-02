@@ -2,16 +2,17 @@ package com.symphony.ps.quizbot.model;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class QuizBlastData extends QuizData {
-    private String quizId;
+public class QuizQuestion {
     private int timeLimit;
-    private String question;
+    private String questionText;
     private List<String> answers;
-    private String label;
+    private String correctAnswer;
 }

@@ -15,10 +15,16 @@ public class Quiz {
     private String id;
     private Instant created;
     private Instant ended;
-    private int timeLimit;
     private long creator;
     private String streamId;
-    private String questionText;
-    private List<String> answers;
-    private String correctAnswer;
+    private List<QuizQuestion> questions;
+    private int currentQuestionIndex;
+
+    public void nextQuestion() {
+        this.currentQuestionIndex++;
+    }
+
+    public QuizQuestion getCurrentQuestion() {
+        return questions.get(currentQuestionIndex);
+    }
 }

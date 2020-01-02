@@ -2,7 +2,7 @@ package com.symphony.ps.quizbot.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.symphony.ps.quizbot.model.Quiz;
+import com.symphony.ps.quizbot.model.QuizQuestion;
 import com.symphony.ps.quizbot.model.QuizBlastData;
 import com.symphony.ps.quizbot.model.QuizCreateData;
 import com.symphony.ps.quizbot.model.QuizData;
@@ -20,11 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class MarkupService {
     private static ObjectMapper mapper = new ObjectMapper();
-    //static String createTemplate = loadTemplate("/create-form.ftl");
+    static String createTemplate = loadTemplate("/create-form.ftl");
     static String blastTemplate = loadTemplate("/blast-form.ftl");
     static String resultsTemplate = loadTemplate("/results-form.ftl");
 
-    public static String loadTemplate(String fileName) {
+    private static String loadTemplate(String fileName) {
         InputStream stream = MarkupService.class.getResourceAsStream(fileName);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             return br.lines().collect(Collectors.joining(System.lineSeparator()));
@@ -35,17 +35,17 @@ class MarkupService {
         }
     }
 
-    static String getCreateData(boolean showPersonSelector, String targetStreamId, int count, List<Integer> timeLimits) {
-        return wrapData(new QuizCreateData(showPersonSelector, targetStreamId, count, timeLimits));
+    static String getCreateData(String quizId, String targetStreamId, int count, List<Integer> timeLimits) {
+        return wrapData(new QuizCreateData(quizId, targetStreamId, count, timeLimits));
     }
 
-    static String getBlastData(Quiz quiz) {
+    static String getBlastData(String quizId, QuizQuestion quizQuestion, String label) {
         return wrapData(new QuizBlastData(
-            quiz.getId() + "",
-            quiz.getTimeLimit(),
-            quiz.getQuestionText(),
-            quiz.getAnswers(),
-            quiz.getCreator()
+            quizId,
+            quizQuestion.getTimeLimit(),
+            quizQuestion.getQuestionText(),
+            quizQuestion.getAnswers(),
+            label
         ));
     }
 
