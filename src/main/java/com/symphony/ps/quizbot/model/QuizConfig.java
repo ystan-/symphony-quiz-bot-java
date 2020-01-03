@@ -14,6 +14,6 @@ public class QuizConfig {
 
     public QuizConfig() {
         options = 4;
-        timeLimits = Arrays.asList(0, 2, 5);
+        timeLimits = Arrays.asList(0, 30, 60);
     }
 }

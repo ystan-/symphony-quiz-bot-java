@@ -2,7 +2,7 @@
     <div style='display:flex;padding-top:8px'>
         <div><img src="https://symphony.com/wp-content/uploads/2019/08/favicon.png" style='height:20px' /></div>
         <div style='padding-top:1px;padding-left:5px;'>
-            <b>Question ${entity["quiz"].label}  Results for ${entity["quiz"].question}</b>
+            <b>Results for Question ${entity["quiz"].label}: ${entity["quiz"].question}</b>
         </div>
     </div>
 

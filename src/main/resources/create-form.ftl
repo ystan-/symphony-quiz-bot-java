@@ -2,7 +2,13 @@
     <form id="quiz-create-form|${entity['quiz'].quizId}">
         <div style='display:flex;padding-top:8px'>
             <div><img src="https://symphony.com/wp-content/uploads/2019/08/favicon.png" style='height:20px' /></div>
-            <div style='padding-top:1px;padding-left:5px;'><b>Create New Quiz</b></div>
+            <div style='padding-top:1px;padding-left:5px;'>
+                <#if entity['quiz'].quizId?has_content>
+                    <b>Create Next Question</b>
+                <#else>
+                    <b>Create New Quiz</b>
+                </#if>
+            </div>
         </div>
 
         <div style='height:2px;background:#0098ff;margin-top:10px;margin-bottom:10px'> </div>
@@ -51,10 +57,8 @@
                 </#if>
                 <#if timeLimit==0>
                     <#assign label="None">
-                <#elseif timeLimit==1>
-                    <#assign label="1 minute">
                 <#else>
-                    <#assign label="${timeLimit} minutes">
+                    <#assign label="${timeLimit} secs">
                 </#if>
                 <div style='padding-right:6px;'><radio name="timeLimit" checked="${checked}" value="${timeLimit}">${label}</radio></div>
             </#list>
@@ -62,8 +66,6 @@
 
         <div style='height:1px;background:#0098ff;margin-top:10px;margin-bottom:10px'> </div>
         <button name="nextQuestion" type="action">Next Question</button>
-    </form>
-    <form id="quiz-launch-form|${entity['quiz'].quizId}">
         <button name="launchQuiz" type="action">Launch Quiz</button>
     </form>
 </div>

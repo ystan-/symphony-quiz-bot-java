@@ -104,7 +104,7 @@ public class QuizService {
         return false;
     }
 
-    private void handleSendCreateForm(String quizId, String streamId, User user) {
+    public void handleSendCreateForm(String quizId, String streamId, User user) {
         log.info("Get new quiz form requested by {}", user.getDisplayName());
         QuizConfig quizConfig = new QuizConfig();
         String createML = MarkupService.createTemplate;
@@ -120,15 +120,14 @@ public class QuizService {
         log.info("New quiz form sent to stream {}", imStreamId);
     }
 
-    @SuppressWarnings("unchecked")
-    public void handleCreateQuiz(User initiator, SymphonyElementsAction action) {
+    public Quiz handleCreateQuiz(User initiator, SymphonyElementsAction action) {
         Map<String, Object> formValues = action.getFormValues();
 
         String quizId = action.getFormId().substring(17);
 
         // Reject quiz creation if an active one exists
         if (userHasConflictingQuiz(initiator, quizId)) {
-            return;
+            return null;
         }
 
         String verb = quizId.isEmpty() ? "New quiz" : "Add question";
@@ -149,7 +148,7 @@ public class QuizService {
                 initiator.getUserId());
             QuizBot.sendMessage(QuizBot.getImStreamId(initiator.getUserId()), rejectMsg);
             log.info("Create quiz by {} rejected as there are less than 2 valid options", initiator.getDisplayName());
-            return;
+            return null;
         }
 
         // Validate stream id if provided
@@ -191,7 +190,7 @@ public class QuizService {
                 if (streamInfo != null) {
                     log.info("Stream id is not a room: {}", tryTargetStreamId);
                 }
-                return;
+                return null;
             }
         }
 
@@ -220,13 +219,14 @@ public class QuizService {
             quiz = dataService.getQuiz(quizId);
             quiz.getQuestions().add(question);
         }
-        quiz = dataService.saveQuiz(quiz);
-
-        handleSendCreateForm(quiz.getId(), targetStreamId, initiator);
+        return dataService.saveQuiz(quiz);
     }
 
     public void handleLaunchQuiz(long userId, String displayName, String quizId) {
         Quiz quiz = dataService.getQuiz(quizId);
+        if (quiz == null) {
+
+        }
         QuizQuestion question = quiz.getCurrentQuestion();
 
         // Construct quiz form and blast to audience
@@ -244,15 +244,15 @@ public class QuizService {
                 public void run() {
                     handleNextQuestion(null, quiz.getCreator(), null);
                 }
-            }, 60000L * question.getTimeLimit());
+            }, 1000L * question.getTimeLimit());
 
-            endByTimerNote = " or wait " + question.getTimeLimit() + " minute" + (question.getTimeLimit() > 1 ? "s" : "");
+            endByTimerNote = " or wait " + question.getTimeLimit() + " second" + (question.getTimeLimit() > 1 ? "s" : "");
         }
 
         QuizBot.sendMessage(
             QuizBot.getImStreamId(userId),
             String.format(
-                "<mention uid=\"%d\"/> Your quiz has been started. You can use <b>/next</b>%s to advance",
+                "<mention uid=\"%d\"/> Your quiz has started. You can use the next button below%s to advance",
                 userId, endByTimerNote
             )
         );
