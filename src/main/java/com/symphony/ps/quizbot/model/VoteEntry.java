@@ -8,14 +8,14 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizResult extends QuizData {
+public class VoteEntry extends QuizData {
     private String quizId;
     private String answer;
     private long count;
     private int width;
     private boolean correct;
 
-    public QuizResult(String answer) {
+    public VoteEntry(String answer) {
         this.answer = answer;
     }
 
@@ -27,8 +27,8 @@ public class QuizResult extends QuizData {
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof QuizResult)) { return false; }
-        QuizResult that = (QuizResult) o;
+        if (!(o instanceof VoteEntry)) { return false; }
+        VoteEntry that = (VoteEntry) o;
         return answer.equals(that.answer);
     }
 

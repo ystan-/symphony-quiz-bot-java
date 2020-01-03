@@ -19,7 +19,7 @@
             <#if entity["quiz"].timeLimit == 0>
                 does not have a time limit
             <#else>
-                will end in ${entity["quiz"].timeLimit} minute<#if entity["quiz"].timeLimit gt 1>s</#if>
+                will end in ${entity["quiz"].timeLimit} seconds
             </#if>
         </i>
     </form>

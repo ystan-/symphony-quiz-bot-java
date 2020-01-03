@@ -19,7 +19,9 @@ class MarkupService {
     private static ObjectMapper mapper = new ObjectMapper();
     static String createTemplate = loadTemplate("/create-form.ftl");
     static String blastTemplate = loadTemplate("/blast-form.ftl");
-    static String resultsTemplate = loadTemplate("/results-form.ftl");
+    static String resultsTemplate = loadTemplate("/vote-results-form.ftl");
+    static String leaderboardTemplate = loadTemplate("/leaderboard-results-form.ftl");
+    static String adminTemplate = loadTemplate("/admin-form.ftl");
 
     private static String loadTemplate(String fileName) {
         InputStream stream = MarkupService.class.getResourceAsStream(fileName);

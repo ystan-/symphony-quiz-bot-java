@@ -4,10 +4,8 @@ import com.symphony.ps.quizbot.model.*;
 import com.symphony.ps.quizbot.repository.QuizRepository;
 import com.symphony.ps.quizbot.repository.QuizAnswerRepository;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -51,32 +49,33 @@ public class DataService {
         return quizRepository.findTopByCreatorAndEnded(userId, null);
     }
 
-    private List<Quiz> getLastTenQuizzes(long userId) {
-        List<Quiz> quizQuestions = quizRepository
-            .findAllByCreatorOrderByCreatedDesc(userId, PageRequest.of(0, 10));
-        quizQuestions.sort(Comparator.comparing(Quiz::getCreated));
-        return quizQuestions;
-    }
-
-    private List<Quiz> getLastTenQuizzes(long userId, String streamId) {
-        List<Quiz> quizzes = quizRepository
-            .findAllByCreatorAndStreamIdOrderByCreatedDesc(userId, streamId, PageRequest.of(0, 10));
-        quizzes.sort(Comparator.comparing(Quiz::getCreated));
-        return quizzes;
-    }
-
     List<QuizAnswer> getAnswers(String quizId, int questionIndex) {
         return quizAnswerRepository.findAllByQuizIdAndQuestionIndex(quizId, questionIndex);
     }
 
-    List<QuizResult> getQuizResults(String quizId, int questionIndex) {
+    int getAnswerCount(String quizId, int questionIndex) {
+        return quizAnswerRepository.countAllByQuizIdAndQuestionIndex(quizId, questionIndex);
+    }
+
+    List<VoteEntry> getVotes(String quizId, int questionIndex) {
         return mongoTemplate
             .aggregate(newAggregation(
                 match(Criteria.where("quizId").is(quizId).and("questionIndex").is(questionIndex)),
                 group("answer").count().as("count"),
                 project("count").and("answer").previousOperation(),
                 sort(new Sort(Sort.Direction.DESC, "count"))
-            ), "quizAnswer", QuizResult.class)
+            ), "quizAnswer", VoteEntry.class)
+            .getMappedResults();
+    }
+
+    List<LeaderboardEntry> getLeaderboard(String quizId) {
+        return mongoTemplate
+            .aggregate(newAggregation(
+                match(Criteria.where("quizId").is(quizId).and("correct").is(true)),
+                group("userId").count().as("count"),
+                project("count").and("userId").previousOperation(),
+                sort(new Sort(Sort.Direction.DESC, "count"))
+            ), "quizAnswer", LeaderboardEntry.class)
             .getMappedResults();
     }
 

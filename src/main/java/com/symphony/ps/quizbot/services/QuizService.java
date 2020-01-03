@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.NoContentException;
 import lombok.extern.slf4j.Slf4j;
 import model.*;
 import model.events.SymphonyElementsAction;
@@ -21,6 +22,8 @@ import utils.MessageUtils;
 @Service
 public class QuizService {
     private final DataService dataService;
+    private List<UserInfo> rigUsers = new ArrayList<>();
+
 
     public QuizService(DataService dataService) {
         this.dataService = dataService;
@@ -56,7 +59,7 @@ public class QuizService {
                 break;
 
             case "/next":
-                handleNextQuestion(streamId, userId, displayName);
+                handleEndQuestion(streamId, userId, displayName);
                 break;
 
             default:
@@ -224,9 +227,6 @@ public class QuizService {
 
     public void handleLaunchQuiz(long userId, String displayName, String quizId) {
         Quiz quiz = dataService.getQuiz(quizId);
-        if (quiz == null) {
-
-        }
         QuizQuestion question = quiz.getCurrentQuestion();
 
         // Construct quiz form and blast to audience
@@ -237,26 +237,28 @@ public class QuizService {
         QuizBot.sendMessage(quiz.getStreamId(), blastML, blastData);
 
         // Start timer
-        String endByTimerNote = "";
         if (question.getTimeLimit() > 0) {
-            Timer timer = new Timer("Timer" + quiz.getId() + quiz.getCurrentQuestionIndex());
-            timer.schedule(new TimerTask() {
-                public void run() {
-                    handleNextQuestion(null, quiz.getCreator(), null);
-                }
-            }, 1000L * question.getTimeLimit());
-
-            endByTimerNote = " or wait " + question.getTimeLimit() + " second" + (question.getTimeLimit() > 1 ? "s" : "");
+            new Timer().schedule(
+                timer(() -> handleEndQuestion(null, quiz.getCreator(), null)),
+                1000L * question.getTimeLimit()
+            );
         }
-
-        QuizBot.sendMessage(
-            QuizBot.getImStreamId(userId),
-            String.format(
-                "<mention uid=\"%d\"/> Your quiz has started. You can use the next button below%s to advance",
-                userId, endByTimerNote
-            )
-        );
+        String adminForm = MarkupService.adminTemplate;
+        String adminFormData = MarkupService.wrapData(AdminFormData.builder()
+            .timeLimit(question.getTimeLimit())
+            .questionLabel(quiz.getCurrentQuestionIndex() == 0 ? "first" : "next")
+            .finalQuestion(quiz.getCurrentQuestionIndex() + 1 == quiz.getQuestions().size())
+            .build());
+        QuizBot.sendMessage(QuizBot.getImStreamId(userId), adminForm, adminFormData);
         log.info("Launch quiz by {} complete", displayName);
+    }
+
+    private static TimerTask timer(Runnable r) {
+        return new TimerTask() {
+            public void run() {
+                r.run();
+            }
+        };
     }
 
     public void handleSubmitVote(User initiator, SymphonyElementsAction action) {
@@ -319,8 +321,9 @@ public class QuizService {
             response = String.format("You have answered <b>%s</b> for the question <i>%s</i>",
                 answer, quizQuestion.getQuestionText());
 
-            creatorNotification = String.format("has answered <b>%s</b> for the question: <i>%s</i>",
-                answer, quizQuestion.getQuestionText());
+            int answerCount = dataService.getAnswerCount(quizId, questionIndex);
+            creatorNotification = String.format("(#%d) has answered <b>%s</b> for the question: <i>%s</i>",
+                answerCount, answer, quizQuestion.getQuestionText());
             log.info("New answer [{}] on question {}, {}", answer, quiz.getId(), quiz.getCurrentQuestionIndex());
         }
 
@@ -332,6 +335,16 @@ public class QuizService {
 
     private void handleRigQuiz(String streamId, long userId, String displayName) {
         log.info("Rig quiz requested by {}", displayName);
+
+        if (rigUsers.isEmpty()) {
+            try {
+                rigUsers = QuizBot.getBotClient().getUsersClient()
+                    .searchUsers("bot", true, 0, 100, null).getUsers();
+            } catch (NoContentException e) {
+                e.printStackTrace();
+            }
+        }
+        List<Long> rigUserIds = rigUsers.parallelStream().map(UserInfo::getId).collect(Collectors.toList());
 
         Quiz quizToRig = dataService.getActiveQuiz(userId);
         QuizQuestion quizQuestionToRig = quizToRig.getCurrentQuestion();
@@ -346,17 +359,21 @@ public class QuizService {
         List<String> randomAnswers = new ArrayList<>(quizQuestionToRig.getAnswers());
         Collections.shuffle(randomAnswers);
         int answersSize = quizQuestionToRig.getAnswers().size();
-        int rigVolume = ThreadLocalRandom.current().nextInt(17, 77);
-        for (int i=0; i < answersSize; i++) {
+        int rigVolume = ThreadLocalRandom.current().nextInt(2, 5);
+        rigLoop: for (int i=0; i < answersSize; i++) {
             for (int r = 0; r < rigVolume; r++) {
                 votes.add(QuizAnswer.builder()
                     .quizId(quizToRig.getId())
                     .questionIndex(quizToRig.getCurrentQuestionIndex())
                     .correct(randomAnswers.get(i).equalsIgnoreCase(quizQuestionToRig.getCorrectAnswer()))
                     .answer(randomAnswers.get(i))
+                    .userId(rigUserIds.get(0))
                     .build());
+                rigUserIds.remove(0);
+                if (rigUserIds.isEmpty()) {
+                    break rigLoop;
+                }
             }
-            rigVolume += (Math.random() * 387) - (Math.random() * 27);
         }
         dataService.createVotes(votes);
 
@@ -364,12 +381,12 @@ public class QuizService {
         log.info("User {} has rigged active quiz", displayName);
     }
 
-    private void handleNextQuestion(String streamId, long userId, String displayName) {
+    public void handleEndQuestion(String streamId, long userId, String displayName) {
         log.info("End quiz requested by {}", displayName != null ? displayName : "[Timer]");
 
         Quiz quiz = dataService.getActiveQuiz(userId);
         if (quiz == null) {
-            QuizBot.sendMessage(streamId, "You have no active quiz to progress");
+            QuizBot.sendMessage(streamId, "You have no active quiz to advance");
             return;
         }
         QuizQuestion quizQuestion = quiz.getCurrentQuestion();
@@ -401,61 +418,112 @@ public class QuizService {
 
         String response, data = null;
         if (answers.isEmpty()) {
-            response = String.format("<mention uid=\"%d\" /> Quiz advanced but with no answers submitted", quiz.getCreator());
+            response = "Looks like no one answered the question: <i>" + quiz.getCurrentQuestion().getQuestionText() + "</i>";
             log.info("Quiz {}, {} advanced with no answers", quiz.getId(), quiz.getCurrentQuestionIndex());
         } else {
             // Aggregate vote results
-            List<QuizResult> quizResults = new ArrayList<>(dataService.getQuizResults(quiz.getId(), quiz.getCurrentQuestionIndex()));
+            List<VoteEntry> voteEntries = new ArrayList<>(dataService.getVotes(quiz.getId(), quiz.getCurrentQuestionIndex()));
 
             // Add in widths
-            long maxVal = Collections.max(quizResults, Comparator.comparingLong(QuizResult::getCount)).getCount();
-            quizResults.forEach(r -> {
+            long maxVal = Collections.max(voteEntries, Comparator.comparingLong(VoteEntry::getCount)).getCount();
+            voteEntries.forEach(r -> {
                 r.setWidth(Math.max(1, (int) (((float) r.getCount() / maxVal) * 200)));
                 r.setCorrect(r.getAnswer().equalsIgnoreCase(quizQuestion.getCorrectAnswer()));
             });
 
             // Add in 0 votes for options nobody voted on
             quizQuestion.getAnswers().stream()
-                .map(QuizResult::new)
-                .filter(a -> !quizResults.contains(a))
+                .map(VoteEntry::new)
+                .filter(a -> !voteEntries.contains(a))
                 .forEach(r -> {
                     r.setCorrect(r.getAnswer().equalsIgnoreCase(quizQuestion.getCorrectAnswer()));
-                    quizResults.add(r);
+                    voteEntries.add(r);
                 });
 
             response = MarkupService.resultsTemplate;
-            data = MarkupService.wrapData(QuizResultsData.builder()
+            data = MarkupService.wrapData(Votes.builder()
                 .creatorId(quiz.getCreator())
                 .question(quizQuestion.getQuestionText())
                 .label(String.format("%d of %d", quiz.getCurrentQuestionIndex() + 1, quiz.getQuestions().size()))
-                .results(quizResults)
+                .results(voteEntries)
                 .build());
 
             log.info("Quiz question {}, {} ended with results {}",
-                quiz.getId(), quiz.getCurrentQuestionIndex(), quizResults.toString());
+                quiz.getId(), quiz.getCurrentQuestionIndex(), voteEntries.toString());
         }
 
         QuizBot.sendMessage(quiz.getStreamId(), response, data);
 
         quiz = dataService.nextQuestion(quiz.getCreator());
-
-        if (quiz.getEnded() == null) {
-            QuizBot.sendMessage(quiz.getStreamId(), "Next question starts in 10 seconds..");
-            String quizId = quiz.getId();
-            Timer timer = new Timer("TimerNext" + quiz.getId() + quiz.getCurrentQuestionIndex());
-            timer.schedule(new TimerTask() {
-                public void run() {
-                    handleLaunchQuiz(userId, displayName, quizId);
-                }
-            }, 10000L);
-
-        } else {
-            handleFinalResults(quiz);
+        if (quiz.getEnded() != null) {
+            log.info("Pausing 5 seconds before final leaderboard");
+            Quiz q = quiz;
+            new Timer().schedule(timer(() -> handleFinalResults(q, streamId)), 5000L);
         }
     }
 
-    private void handleFinalResults(Quiz quiz) {
-        QuizBot.sendMessage(quiz.getStreamId(), "That's it folks!");
-        log.info("FINAL");
+    public void handleNextQuestion(String streamId, long userId, String displayName) {
+        Quiz quiz = dataService.getActiveQuiz(userId);
+        if (quiz == null) {
+            QuizBot.sendMessage(streamId, "You have no active quiz to advance");
+            return;
+        }
+        if (quiz.getEnded() == null) {
+            handleLaunchQuiz(userId, displayName, quiz.getId());
+        } else {
+            handleFinalResults(quiz, streamId);
+        }
+    }
+
+    public void handleLeaderboard(long userId, String streamId) {
+        Quiz quiz = dataService.getActiveQuiz(userId);
+        if (quiz == null) {
+            QuizBot.sendMessage(streamId, "Invalid quiz to show leaderboard for");
+        }
+        handleLeaderboard(quiz.getId(), streamId);
+    }
+
+    public void handleLeaderboard(String quizId, String streamId) {
+        Quiz quiz = dataService.getQuiz(quizId);
+        if (quiz == null) {
+            QuizBot.sendMessage(streamId, "Invalid quiz to show leaderboard for");
+            return;
+        }
+        List<LeaderboardEntry> entries = dataService.getLeaderboard(quiz.getId());
+        if (entries.isEmpty()) {
+            QuizBot.sendMessage(streamId, "No answers yet");
+            return;
+        }
+        List<Long> userIdList = entries.parallelStream().map(LeaderboardEntry::getUserId).collect(Collectors.toList());
+        try {
+            Map<Long, String> userMap = QuizBot.getBotClient().getUsersClient()
+                .getUsersFromIdList(userIdList, true)
+                .stream()
+                .collect(Collectors.toMap(UserInfo::getId, UserInfo::getDisplayName));
+            entries.forEach(entry -> entry.setDisplayName(userMap.get(entry.getUserId())));
+        } catch (NoContentException e) {
+            log.error("No users found", e);
+        }
+
+        // Add in widths
+        long maxVal = Collections.max(entries, Comparator.comparingLong(LeaderboardEntry::getCount)).getCount();
+        entries.forEach(r -> r.setWidth(Math.max(1, (int) (((float) r.getCount() / maxVal) * 200))));
+
+        int questionIndex = quiz.getCurrentQuestionIndex();
+        String label = quiz.getEnded() != null ? "Final Leaderboard" :
+            String.format("Leaderboard after %d/%d questions", questionIndex, quiz.getQuestions().size());
+
+        String data = MarkupService.wrapData(Leaderboard.builder()
+            .creatorId(quiz.getCreator())
+            .label(label)
+            .results(entries)
+            .build());
+        QuizBot.sendMessage(quiz.getStreamId(), MarkupService.leaderboardTemplate, data);
+    }
+
+    private void handleFinalResults(Quiz quiz, String streamId) {
+        handleLeaderboard(quiz.getId(), streamId);
+        QuizBot.sendMessage(quiz.getStreamId(), "That's it, folks. Thanks for playing!");
+        log.info("Quiz complete");
     }
 }
